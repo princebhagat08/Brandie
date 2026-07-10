@@ -12,15 +12,16 @@ import '../../../controllers/home_controller.dart';
 import 'post_background.dart';
 
 class PostItem extends StatelessWidget {
-  final PostModel post;
+  final String postId;
 
-  const PostItem({super.key, required this.post});
+  const PostItem({super.key, required this.postId});
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
 
     return Obx(() {
+      final post = controller.posts.firstWhere((e) => e.id == postId);
       final currentMediaIndex = controller.mediaIndexFor(post.id);
       final media = post.media[currentMediaIndex];
       final mediaKey = controller.mediaStateKey(postId: post.id, media: media);

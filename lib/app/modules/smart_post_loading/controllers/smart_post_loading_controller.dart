@@ -20,11 +20,6 @@ class SmartPostLoadingController extends GetxController {
     startLoading();
 
     images = (Get.arguments?['images'] as List<XFile>?) ?? [];
-
-    if(Get.isRegistered<HomeController>()){
-      final homeController = Get.find<HomeController>();
-      homeController.addDummyPostFromSelectedImages(images);
-    }
   }
 
   Future<void> startLoading() async {
@@ -41,6 +36,11 @@ class SmartPostLoadingController extends GetxController {
     }
 
     isAllCompleted.value = true;
+
+    if(Get.isRegistered<HomeController>()){
+      final homeController = Get.find<HomeController>();
+      homeController.addDummyPostFromSelectedImages(images);
+    }
 
     await Future.delayed(const Duration(seconds: 1));
     Get.offNamed(Routes.HOME,arguments: {'images':images});

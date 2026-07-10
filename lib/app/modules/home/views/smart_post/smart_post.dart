@@ -17,7 +17,7 @@ class SmartPost extends GetView<HomeController> {
       onPageChanged: controller.onPostChanged,
 
       itemBuilder: (_, index) {
-        return PostItem(post: controller.posts[index]);
+        return PostItem(postId: controller.posts[index].id);
       },
     );
   }
