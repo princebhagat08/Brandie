@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../../../../data/model/media_model.dart';
@@ -15,10 +17,14 @@ class PostBackground extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(
+       if(media.type == MediaType.image) Image.asset(
           media.url,
           fit: BoxFit.cover,
         ),
+       if(media.type == MediaType.xfile) Image.file(
+          File(media.url),
+          fit: BoxFit.cover,
+        ), 
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(

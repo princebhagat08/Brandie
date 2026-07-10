@@ -1,4 +1,4 @@
-enum MediaType { image, video }
+enum MediaType { image, video, xfile }
 
 class MediaModel {
   final String url;

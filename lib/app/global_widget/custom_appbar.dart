@@ -6,10 +6,12 @@ import '../constant/app_images.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final PreferredSizeWidget? bottom;
-  const CustomAppBar({super.key, this.bottom});
+  final void Function()? onCameraTap;
+  final double? height;
+  const CustomAppBar({super.key, this.bottom, this.onCameraTap,this.height});
 
   @override
-  Size get preferredSize => Size.fromHeight(135.h);
+  Size get preferredSize => Size.fromHeight(height??135.h);
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       elevation: 1,
       toolbarHeight: 82.h,
-
+      // backgroundColor: AppColor.whiteColor,
       title: Row(
         children: [
           /// Assistant
@@ -31,7 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   children: [
                     CircleAvatar(
                       radius: 25.r,
-                      backgroundColor: context.appColors.black,
+                      backgroundColor: Colors.black,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Image.asset(AppImages.O, scale: 5),
@@ -74,13 +76,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
-                onTap: () {},
+                onTap: onCameraTap,
                 child: CircleAvatar(
                   radius: 25.r,
-                  backgroundColor: context.appColors.black,
+                  backgroundColor: Colors.black,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.camera_alt),
+                    child: Icon(Icons.camera_alt,color: Colors.white,),
                   ),
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/model/media_model.dart';
@@ -10,26 +11,28 @@ import '../../../data/model/post_model.dart';
 import '../../../data/model/quick_share_model.dart';
 import '../../../data/model/share_payload.dart';
 import '../../../global_widget/share_dialog.dart';
+import '../../../routes/app_pages.dart';
+import '../../../utils/image_picker_utils.dart';
 import 'share_dialog_controller.dart';
 
-
-
-
-class HomeController extends GetxController with GetSingleTickerProviderStateMixin {
+class HomeController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  List<XFile>? pickedImages;
+  RxBool isEditMode = false.obs;
   late TabController tabController;
   final PageController pageController = PageController();
-
+  final ImagePicker _picker = ImagePicker();
   RxInt selectedBottomNav = 2.obs;
 
   RxInt currentPost = 0.obs;
-  
+
   final RxMap<String, int> currentMediaByPost = <String, int>{}.obs;
   final RxMap<String, bool> expandedCaptionByMedia = <String, bool>{}.obs;
   final RxMap<String, bool> productVisibleByMedia = <String, bool>{}.obs;
   final Set<String> _scheduledProductReveal = <String>{};
 
   final posts = <PostModel>[].obs;
-
+  final RxList<XFile> selectedImages = <XFile>[].obs;
   final tabs = const [
     Tab(text: "Smart Post"),
     Tab(text: "Library"),
@@ -88,7 +91,36 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     AppIcons.profile,
   ];
 
+  Future<void> openMediaPicker() async {
+    final source = await ImagePickerUtil.showPicker(Get.context!);
 
+    if (source == null) return;
+
+    selectedImages.clear();
+
+    if (source == ImageSource.camera) {
+      final image = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        selectedImages.add(image);
+      }
+    } else {
+      final images = await _picker.pickMultiImage(imageQuality: 80);
+
+      if (images.isNotEmpty) {
+        selectedImages.addAll(images);
+      }
+    }
+
+    if (selectedImages.isEmpty) {
+      return;
+    }
+
+    Get.toNamed(Routes.MEDIA_PREVIEW, arguments: selectedImages);
+  }
 
   void onPostChanged(int index) {
     currentPost.value = index;
@@ -118,10 +150,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     return post.media[index];
   }
 
-  String mediaStateKey({
-    required String postId,
-    required MediaModel media,
-  }) {
+  String mediaStateKey({required String postId, required MediaModel media}) {
     return '$postId|${media.url}|${media.link}';
   }
 
@@ -150,7 +179,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     });
   }
 
-  
   Future<void> openProductLink(String rawLink) async {
     final parsedUri = Uri.tryParse(rawLink);
     final uri = parsedUri != null && parsedUri.hasScheme
@@ -169,34 +197,34 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   }
 
   Future<void> showShareDialog({
-  required List<ShareDialogStep> steps,
-  String? tag,
-}) async {
-  final dialogTag = tag ?? 'share-dialog-${DateTime.now().microsecondsSinceEpoch}';
+    required List<ShareDialogStep> steps,
+    String? tag,
+  }) async {
+    final dialogTag =
+        tag ?? 'share-dialog-${DateTime.now().microsecondsSinceEpoch}';
 
-  final controller = Get.put(
-    ShareDialogController(steps: steps),
-    tag: dialogTag,
-  );
+    final controller = Get.put(
+      ShareDialogController(steps: steps),
+      tag: dialogTag,
+    );
 
-  Get.dialog(
-    ShareDialog(tag: dialogTag),
-    barrierDismissible: false,
-    barrierColor: Colors.grey.withValues(alpha: 0.9),
-  );
+    Get.dialog(
+      ShareDialog(tag: dialogTag),
+      barrierDismissible: false,
+      barrierColor: Colors.grey.withValues(alpha: 0.9),
+    );
 
-  try {
-    await controller.run();
-  } finally {
-    if (Get.isDialogOpen ?? false) {
-      Get.back();
+    try {
+      await controller.run();
+    } finally {
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      Get.delete<ShareDialogController>(tag: dialogTag, force: true);
     }
-    Get.delete<ShareDialogController>(tag: dialogTag, force: true);
   }
-}
 
-
-Future<void> handleQuickShare(QuickShareItem item) async {
+  Future<void> handleQuickShare(QuickShareItem item) async {
     final post = currentPostModel;
     if (post == null) return;
 
@@ -270,7 +298,9 @@ Future<void> handleQuickShare(QuickShareItem item) async {
             'https://www.facebook.com/sharer/sharer.php?u=$encodedLink&quote=$encodedText',
           ),
         );
-        uris.add(Uri.parse('fb://facewebmodal/f?href=https://www.facebook.com/'));
+        uris.add(
+          Uri.parse('fb://facewebmodal/f?href=https://www.facebook.com/'),
+        );
         break;
       case QuickShareTarget.messenger:
         uris.add(Uri.parse('fb-messenger://share/?link=$encodedLink'));
@@ -286,7 +316,11 @@ Future<void> handleQuickShare(QuickShareItem item) async {
         break;
       case QuickShareTarget.telegram:
         uris.add(Uri.parse('tg://msg?text=$encodedText'));
-        uris.add(Uri.parse('https://t.me/share/url?url=$encodedLink&text=$encodedText'));
+        uris.add(
+          Uri.parse(
+            'https://t.me/share/url?url=$encodedLink&text=$encodedText',
+          ),
+        );
         break;
       case QuickShareTarget.tiktok:
         uris.add(Uri.parse('snssdk1233://'));
@@ -311,8 +345,6 @@ Future<void> handleQuickShare(QuickShareItem item) async {
     return 'https://$trimmed';
   }
 
- 
-
   @override
   void onInit() {
     super.onInit();
@@ -329,6 +361,37 @@ Future<void> handleQuickShare(QuickShareItem item) async {
   void onClose() {
     tabController.dispose();
     super.onClose();
+  }
+
+  void addDummyPostFromSelectedImages(List<XFile> images) {
+    if (images.isEmpty || dummyPosts.isEmpty) return;
+    isEditMode.value = true;
+    final firstPost = dummyPosts.first;
+
+    final media = images
+        .map(
+          (image) => MediaModel(
+            url: image.path,
+            type: MediaType.xfile,
+            caption: firstPost.media.first.caption,
+            music: firstPost.media.first.music,
+            hashtag: firstPost.media.first.hashtag,
+            referralCode: firstPost.media.first.referralCode,
+            link: firstPost.media.first.link,
+          ),
+        )
+        .toList();
+
+    final newPost = PostModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      userImage: firstPost.userImage,
+      userName: firstPost.userName,
+      media: media,
+    );
+
+    posts.clear();
+    posts.assign(newPost);
+
   }
 
   final dummyPosts = [

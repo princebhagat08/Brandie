@@ -17,6 +17,7 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
+        onCameraTap: controller.openMediaPicker,
         bottom: TabBar(
           controller: controller.tabController,
           isScrollable: false,
@@ -29,7 +30,7 @@ class HomeView extends GetView<HomeController> {
             fontWeight: FontWeight.bold,
           ),
           labelPadding: EdgeInsets.symmetric(horizontal: 4.w),
-          unselectedLabelColor: AppColor.blackColor,
+          unselectedLabelColor: Get.isDarkMode? Colors.white: AppColor.blackColor,
           tabs: const [
             Tab(text: "Smart Post"),
             Tab(text: "Library"),

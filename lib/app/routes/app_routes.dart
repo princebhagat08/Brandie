@@ -8,6 +8,8 @@ abstract class Routes {
   static const SEARCH = _Paths.SEARCH;
   static const CHAT = _Paths.CHAT;
   static const PROFILE = _Paths.PROFILE;
+  static const MEDIA_PREVIEW = _Paths.MEDIA_PREVIEW;
+  static const SMART_POST_LOADING = _Paths.SMART_POST_LOADING;
 }
 
 abstract class _Paths {
@@ -17,4 +19,6 @@ abstract class _Paths {
   static const SEARCH = '/search';
   static const CHAT = '/chat';
   static const PROFILE = '/profile';
+  static const MEDIA_PREVIEW = '/media-preview';
+  static const SMART_POST_LOADING = '/smart-post-loading';
 }

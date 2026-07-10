@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:brandie/app/constant/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -46,16 +49,9 @@ class PostItem extends StatelessWidget {
                     currentMediaIndex: currentMediaIndex,
                   ),
                   const Spacer(),
-                  _ProductSection(
-                    media: media,
-                    mediaKey: mediaKey,
-                  ),
+                  _ProductSection(media: media, mediaKey: mediaKey),
                   SizedBox(height: 6.h),
-                  _PostMeta(
-                    post: post,
-                    media: media,
-                    mediaKey: mediaKey,
-                  ),
+                  _PostMeta(post: post, media: media, mediaKey: mediaKey),
                 ],
               ),
             ),
@@ -217,7 +213,6 @@ class _PostMeta extends GetView<HomeController> {
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
                   ),
-                  
                 ),
               ),
 
@@ -232,6 +227,21 @@ class _PostMeta extends GetView<HomeController> {
                 "Use my referral link: ${media.link}",
                 style: TextStyle(color: Colors.white, fontSize: 14.sp),
               ),
+
+             if(controller.isEditMode.value) GestureDetector(
+              onTap: (){},
+               child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  spacing: 3.w,
+                  children: [
+                    Icon(Icons.edit, color: AppColor.whiteColor, size: 20.sp),
+                    Text(
+                      "Edit Caption",
+                      style: TextStyle(color: AppColor.whiteColor,fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+             ),
             ],
           ),
         ),
@@ -244,11 +254,7 @@ class _ProductSection extends GetView<HomeController> {
   final MediaModel media;
   final String mediaKey;
 
-  const _ProductSection({
-    required this.media,
-    required this.mediaKey,
-  });
-
+  const _ProductSection({required this.media, required this.mediaKey});
 
   @override
   Widget build(BuildContext context) {
@@ -268,28 +274,37 @@ class _ProductSection extends GetView<HomeController> {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: ()async{
+              onTap: () async {
                 await controller.openProductLink(media.link.trim());
-              } ,
+              },
               borderRadius: BorderRadius.circular(16.r),
               child: Ink(
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.40),
                   borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.16),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.r),
-                      child: Image.asset(
-                        media.url,
-                        width: 62.w,
-                        height: 62.w,
-                        fit: BoxFit.cover,
-                      ),
+                      child: media.type == MediaType.xfile
+                          ? Image.file(
+                              File(media.url),
+                              width: 62.w,
+                              height: 62.w,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              media.url,
+                              width: 62.w,
+                              height: 62.w,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                     SizedBox(width: 12.w),
                     Column(
@@ -318,27 +333,29 @@ class _ProductSection extends GetView<HomeController> {
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal:8.w,vertical: 4.h),
-                              decoration:BoxDecoration(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5.r),
-                                color: const Color.fromARGB(255, 4, 118, 8)
-                              ) ,
+                                color: const Color.fromARGB(255, 4, 118, 8),
+                              ),
                               child: Center(
                                 child: Text(
-                                "30% off",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w700,
+                                  "30% off",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                                                            ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ],
                     ),
-                    
                   ],
                 ),
               ),
@@ -348,5 +365,4 @@ class _ProductSection extends GetView<HomeController> {
       );
     });
   }
-
 }
