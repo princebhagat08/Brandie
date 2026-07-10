@@ -68,7 +68,7 @@ class AppTheme {
         success: Colors.green,
         warning: Colors.orange,
         countryCodeBg: Color(0xffEFEFEF),
-        iconColor: Colors.black87,
+        iconColor: AppColor.blackColor,
         iconBg: Colors.black,
         black: Colors.black,
       ),
@@ -136,7 +136,7 @@ class AppTheme {
         success: Colors.green,
         warning: Colors.orange,
         countryCodeBg: Color(0xff2B2B2B),
-        iconColor: Colors.white,
+        iconColor: AppColor.whiteColor,
         iconBg: Colors.white,
         black: Colors.white
       ),
