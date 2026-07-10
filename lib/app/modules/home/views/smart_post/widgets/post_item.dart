@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../data/model/media_model.dart';
@@ -36,25 +37,17 @@ class PostItem extends StatelessWidget {
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 150),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 120.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _MediaProgressIndicator(
-                    total: post.media.length,
-                    currentIndex: currentMediaIndex,
+                  _PostHeader(
+                    post: post,
+                    media: media,
+                    currentMediaIndex: currentMediaIndex,
                   ),
-                  const SizedBox(height: 18),
-                  _PostHeader(post: post, media: media),
                   const Spacer(),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(child: _PostMeta(post: post, media: media)),
-                      const SizedBox(width: 16),
-                      _PostActions(media: media),
-                    ],
-                  ),
+                  _PostMeta(post: post, media: media)
                 ],
               ),
             ),
@@ -65,52 +58,25 @@ class PostItem extends StatelessWidget {
   }
 }
 
-class _MediaProgressIndicator extends StatelessWidget {
-  final int total;
-  final int currentIndex;
-
-  const _MediaProgressIndicator({
-    required this.total,
-    required this.currentIndex,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(total, (index) {
-        final isActive = index == currentIndex;
-        return Expanded(
-          child: Container(
-            height: 4,
-            margin: EdgeInsets.only(right: index == total - 1 ? 0 : 6),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? Colors.white
-                  : Colors.white.withValues(alpha: 0.28),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-}
 
 class _PostHeader extends StatelessWidget {
   final PostModel post;
   final MediaModel media;
+  final int currentMediaIndex;
 
   const _PostHeader({
     required this.post,
     required this.media,
+    required this.currentMediaIndex,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CircleAvatar(
-          radius: 24,
+          radius: 26.r,
           backgroundImage: AssetImage(post.userImage),
         ),
         const SizedBox(width: 12),
@@ -128,27 +94,28 @@ class _PostHeader extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                media.type == MediaType.video ? "Video clip" : "Photo story",
+                "High-converting in Oriflame Community",
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.82),
-                  fontSize: 12,
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold
                 ),
               ),
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+       if(post.media.length>1) Container(
+          padding:  EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.16),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+            color: Colors.black.withAlpha(80),
+            borderRadius: BorderRadius.circular(14.r),
           ),
-          child: const Text(
-            "Follow",
+          child: Text(
+            '${currentMediaIndex + 1} of ${post.media.length}',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
+              fontSize: 14.sp
             ),
           ),
         ),

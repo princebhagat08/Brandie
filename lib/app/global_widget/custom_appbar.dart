@@ -7,9 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../constant/app_images.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final TabController controller;
-
-  const CustomAppBar({super.key, required this.controller});
+  final PreferredSizeWidget? bottom;
+  const CustomAppBar({super.key,  this.bottom});
 
   @override
   Size get preferredSize => Size.fromHeight(135.h);
@@ -78,27 +77,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
 
-      bottom: TabBar(
-        controller: controller,
-        isScrollable: false,
-        indicatorColor: Colors.transparent,
-        labelColor: AppColor.primaryColor,
-        labelStyle: context.text.bodySmall?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
-        unselectedLabelStyle: context.text.bodySmall?.copyWith(
-          fontWeight: FontWeight.bold,
-
-        ),
-        labelPadding: EdgeInsets.symmetric(horizontal: 4.w),
-        unselectedLabelColor: AppColor.blackColor,
-        tabs: const [
-          Tab(text: "Smart Post"),
-          Tab(text: "Library"),
-          Tab(text: "Communities"),
-          Tab(text: "Share&Win"),
-        ],
-      ),
+      bottom: bottom
     );
   }
 }

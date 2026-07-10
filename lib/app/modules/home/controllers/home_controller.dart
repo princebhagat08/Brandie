@@ -5,11 +5,14 @@ import 'package:get/get.dart';
 import '../../../data/model/media_model.dart';
 import '../../../data/model/post_model.dart';
 
-class HomeController extends GetxController
-    with GetSingleTickerProviderStateMixin {
+class HomeController extends GetxController with GetSingleTickerProviderStateMixin {
   late TabController tabController;
   final PageController pageController = PageController();
+
+  RxInt selectedBottomNav = 2.obs;
+
   RxInt currentPost = 0.obs;
+  
   final RxMap<String, int> currentMediaByPost = <String, int>{}.obs;
 
   final posts = <PostModel>[].obs;
@@ -33,15 +36,21 @@ class HomeController extends GetxController
   ];
 
   final navItems = const [
-    AppIcons.share,
+    AppIcons.notification,
     AppIcons.search,
     AppIcons.home,
     AppIcons.chat,
     AppIcons.profile,
   ];
 
+
+
   void onPostChanged(int index) {
     currentPost.value = index;
+  }
+
+  void onBottomNavChanged(int index) {
+    selectedBottomNav.value = index;
   }
 
   void onMediaChanged({required String postId, required int index}) {
