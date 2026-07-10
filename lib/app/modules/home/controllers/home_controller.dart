@@ -1,10 +1,18 @@
 import 'package:brandie/app/constant/app_images.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/model/media_model.dart';
 import '../../../data/model/post_model.dart';
+import '../../../data/model/quick_share_model.dart';
+import '../../../data/model/share_payload.dart';
+import '../../../global_widget/share_dialog.dart';
+
+
+
 
 class HomeController extends GetxController with GetSingleTickerProviderStateMixin {
   late TabController tabController;
@@ -28,15 +36,47 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     Tab(text: "Share&Win"),
   ];
 
-  final quickShareIcons = const [
-    AppImages.insta,
-    AppImages.whatsapp,
-    AppImages.fb,
-    AppImages.fb,
-    AppImages.bussiness_whatsapp,
-    AppImages.share_chat,
-    AppImages.telegram,
-    AppImages.tiktok,
+  final quickShareItems = const [
+    QuickShareItem(
+      icon: AppImages.insta,
+      target: QuickShareTarget.instagram,
+      label: 'Instagram',
+    ),
+    QuickShareItem(
+      icon: AppImages.whatsapp,
+      target: QuickShareTarget.whatsapp,
+      label: 'WhatsApp',
+    ),
+    QuickShareItem(
+      icon: AppImages.fb,
+      target: QuickShareTarget.facebook,
+      label: 'Facebook',
+    ),
+    QuickShareItem(
+      icon: AppImages.fb,
+      target: QuickShareTarget.messenger,
+      label: 'Messenger',
+    ),
+    QuickShareItem(
+      icon: AppImages.bussiness_whatsapp,
+      target: QuickShareTarget.businessWhatsapp,
+      label: 'WhatsApp Business',
+    ),
+    QuickShareItem(
+      icon: AppImages.share_chat,
+      target: QuickShareTarget.shareChat,
+      label: 'ShareChat',
+    ),
+    QuickShareItem(
+      icon: AppImages.telegram,
+      target: QuickShareTarget.telegram,
+      label: 'Telegram',
+    ),
+    QuickShareItem(
+      icon: AppImages.tiktok,
+      target: QuickShareTarget.tiktok,
+      label: 'TikTok',
+    ),
   ];
 
   final navItems = const [
@@ -63,6 +103,18 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   int mediaIndexFor(String postId) {
     return currentMediaByPost[postId] ?? 0;
+  }
+
+  PostModel? get currentPostModel {
+    if (posts.isEmpty) return null;
+    final index = currentPost.value.clamp(0, posts.length - 1);
+    return posts[index];
+  }
+
+  MediaModel? currentMediaForPost(PostModel post) {
+    if (post.media.isEmpty) return null;
+    final index = mediaIndexFor(post.id).clamp(0, post.media.length - 1);
+    return post.media[index];
   }
 
   String mediaStateKey({
@@ -114,6 +166,113 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       );
     }
   }
+
+Future<void> handleQuickShare(
+    BuildContext context,
+    QuickShareItem item,
+  ) async {
+    final post = currentPostModel;
+    if (post == null) return;
+
+    final media = currentMediaForPost(post);
+    if (media == null) return;
+
+    final payload = SharePayload.from(post.userName, media);
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.grey.withOpacity(0.9),
+      builder: (_) => const QuickShareLoaderDialog(),
+    );
+
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    await Future<void>.delayed(const Duration(milliseconds: 850));
+    await Clipboard.setData(ClipboardData(text: payload.fullText));
+    await Future<void>.delayed(const Duration(milliseconds: 850));
+
+    if (context.mounted) {
+      // Navigator.of(context, rootNavigator: true).pop();
+    }
+
+    final opened = await _launchShareTarget(item.target, payload);
+    if (!opened) {
+      Get.snackbar(
+        'Share payload copied',
+        'Unable to open ${item.label}. The content was copied to clipboard.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.black.withValues(alpha: 0.82),
+        colorText: Colors.white,
+        margin: EdgeInsets.all(16.w),
+      );
+    }
+  }
+
+  Future<bool> _launchShareTarget(
+    QuickShareTarget target,
+    SharePayload payload,
+  ) async {
+    final encodedText = Uri.encodeComponent(payload.fullText);
+    final encodedLink = Uri.encodeComponent(normalizedLink(payload.link));
+    final uris = <Uri>[];
+
+    switch (target) {
+      case QuickShareTarget.instagram:
+        uris.add(Uri.parse('instagram://camera'));
+        uris.add(Uri.parse('https://www.instagram.com/'));
+        break;
+      case QuickShareTarget.whatsapp:
+        uris.add(Uri.parse('whatsapp://send?text=$encodedText'));
+        uris.add(Uri.parse('https://wa.me/?text=$encodedText'));
+        break;
+      case QuickShareTarget.facebook:
+        uris.add(
+          Uri.parse(
+            'https://www.facebook.com/sharer/sharer.php?u=$encodedLink&quote=$encodedText',
+          ),
+        );
+        uris.add(Uri.parse('fb://facewebmodal/f?href=https://www.facebook.com/'));
+        break;
+      case QuickShareTarget.messenger:
+        uris.add(Uri.parse('fb-messenger://share/?link=$encodedLink'));
+        uris.add(Uri.parse('https://www.messenger.com/'));
+        break;
+      case QuickShareTarget.businessWhatsapp:
+        uris.add(Uri.parse('whatsapp://send?text=$encodedText'));
+        uris.add(Uri.parse('https://wa.me/?text=$encodedText'));
+        break;
+      case QuickShareTarget.shareChat:
+        uris.add(Uri.parse('sharechat://'));
+        uris.add(Uri.parse('https://sharechat.com/'));
+        break;
+      case QuickShareTarget.telegram:
+        uris.add(Uri.parse('tg://msg?text=$encodedText'));
+        uris.add(Uri.parse('https://t.me/share/url?url=$encodedLink&text=$encodedText'));
+        break;
+      case QuickShareTarget.tiktok:
+        uris.add(Uri.parse('snssdk1233://'));
+        uris.add(Uri.parse('https://www.tiktok.com/upload'));
+        break;
+    }
+
+    for (final uri in uris) {
+      if (await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  String normalizedLink(String link) {
+    final trimmed = link.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    return 'https://$trimmed';
+  }
+
+ 
 
   @override
   void onInit() {
