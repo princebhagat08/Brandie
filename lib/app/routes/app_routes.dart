@@ -10,6 +10,7 @@ abstract class Routes {
   static const PROFILE = _Paths.PROFILE;
   static const MEDIA_PREVIEW = _Paths.MEDIA_PREVIEW;
   static const SMART_POST_LOADING = _Paths.SMART_POST_LOADING;
+  static const EDIT_POST = _Paths.EDIT_POST;
 }
 
 abstract class _Paths {
@@ -21,4 +22,5 @@ abstract class _Paths {
   static const PROFILE = '/profile';
   static const MEDIA_PREVIEW = '/media-preview';
   static const SMART_POST_LOADING = '/smart-post-loading';
+  static const EDIT_POST = '/edit-post';
 }

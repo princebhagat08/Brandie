@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
+import '../modules/edit_post/bindings/edit_post_binding.dart';
+import '../modules/edit_post/views/edit_post_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/media_preview/bindings/media_preview_binding.dart';
@@ -57,6 +59,11 @@ class AppPages {
       name: _Paths.SMART_POST_LOADING,
       page: () => const SmartPostLoadingView(),
       binding: SmartPostLoadingBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_POST,
+      page: () => const EditPostView(),
+      binding: EditPostBinding(),
     ),
   ];
 }

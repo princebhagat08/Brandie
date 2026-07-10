@@ -345,6 +345,18 @@ class HomeController extends GetxController
     return 'https://$trimmed';
   }
 
+  void editCaption(int currentMediaIndex) async {
+    final editedPost = await Get.toNamed(
+      Routes.EDIT_POST,
+      arguments: {"post": currentPostModel, "mediaIndex": currentMediaIndex},
+    );
+
+    if (editedPost != null) {
+      print("---> REFRESHED");
+      posts.refresh();
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -391,7 +403,6 @@ class HomeController extends GetxController
 
     posts.clear();
     posts.assign(newPost);
-
   }
 
   final dummyPosts = [

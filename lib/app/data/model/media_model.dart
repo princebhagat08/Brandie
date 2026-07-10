@@ -3,11 +3,11 @@ enum MediaType { image, video, xfile }
 class MediaModel {
   final String url;
   final MediaType type;
-  final String caption;
+  String caption;
   final String music;
-  final String hashtag;
-  final String referralCode;
-  final String link;
+  String hashtag;
+  String referralCode;
+  String link;
 
   MediaModel({
     required this.url,

@@ -51,7 +51,7 @@ class PostItem extends StatelessWidget {
                   const Spacer(),
                   _ProductSection(media: media, mediaKey: mediaKey),
                   SizedBox(height: 6.h),
-                  _PostMeta(post: post, media: media, mediaKey: mediaKey),
+                  _PostMeta(post: post, media: media, mediaKey: mediaKey,currentMediaIndex: currentMediaIndex,),
                 ],
               ),
             ),
@@ -129,11 +129,12 @@ class _PostMeta extends GetView<HomeController> {
   final PostModel post;
   final MediaModel media;
   final String mediaKey;
-
+  final int currentMediaIndex;
   const _PostMeta({
     required this.post,
     required this.media,
     required this.mediaKey,
+    required this.currentMediaIndex
   });
 
   @override
@@ -229,7 +230,7 @@ class _PostMeta extends GetView<HomeController> {
               ),
 
              if(controller.isEditMode.value) GestureDetector(
-              onTap: (){},
+              onTap: ()=>controller.editCaption(currentMediaIndex),
                child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   spacing: 3.w,
