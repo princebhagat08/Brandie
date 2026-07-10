@@ -1,6 +1,7 @@
 import 'package:brandie/app/constant/app_images.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/model/media_model.dart';
 import '../../../data/model/post_model.dart';
@@ -14,6 +15,9 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   RxInt currentPost = 0.obs;
   
   final RxMap<String, int> currentMediaByPost = <String, int>{}.obs;
+  final RxMap<String, bool> expandedCaptionByMedia = <String, bool>{}.obs;
+  final RxMap<String, bool> productVisibleByMedia = <String, bool>{}.obs;
+  final Set<String> _scheduledProductReveal = <String>{};
 
   final posts = <PostModel>[].obs;
 
@@ -59,6 +63,56 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   int mediaIndexFor(String postId) {
     return currentMediaByPost[postId] ?? 0;
+  }
+
+  String mediaStateKey({
+    required String postId,
+    required MediaModel media,
+  }) {
+    return '$postId|${media.url}|${media.link}';
+  }
+
+  bool isCaptionExpanded(String mediaKey) {
+    return expandedCaptionByMedia[mediaKey] ?? false;
+  }
+
+  void toggleCaptionExpanded(String mediaKey) {
+    expandedCaptionByMedia[mediaKey] = !isCaptionExpanded(mediaKey);
+  }
+
+  bool isProductVisible(String mediaKey) {
+    return productVisibleByMedia[mediaKey] ?? false;
+  }
+
+  void scheduleProductReveal(String mediaKey) {
+    if (productVisibleByMedia[mediaKey] == true ||
+        _scheduledProductReveal.contains(mediaKey)) {
+      return;
+    }
+
+    _scheduledProductReveal.add(mediaKey);
+    Future.delayed(const Duration(seconds: 3), () {
+      productVisibleByMedia[mediaKey] = true;
+      _scheduledProductReveal.remove(mediaKey);
+    });
+  }
+
+  
+  Future<void> openProductLink(String rawLink) async {
+    final parsedUri = Uri.tryParse(rawLink);
+    final uri = parsedUri != null && parsedUri.hasScheme
+        ? parsedUri
+        : Uri.parse('https://$rawLink');
+
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      Get.snackbar(
+        'Unable to open link',
+        rawLink,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.black.withValues(alpha: 0.82),
+        colorText: Colors.white,
+      );
+    }
   }
 
   @override

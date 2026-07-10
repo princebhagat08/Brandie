@@ -20,6 +20,7 @@ class PostItem extends StatelessWidget {
     return Obx(() {
       final currentMediaIndex = controller.mediaIndexFor(post.id);
       final media = post.media[currentMediaIndex];
+      final mediaKey = controller.mediaStateKey(postId: post.id, media: media);
 
       return Stack(
         fit: StackFit.expand,
@@ -45,7 +46,16 @@ class PostItem extends StatelessWidget {
                     currentMediaIndex: currentMediaIndex,
                   ),
                   const Spacer(),
-                  _PostMeta(post: post, media: media),
+                  _ProductSection(
+                    media: media,
+                    mediaKey: mediaKey,
+                  ),
+                  SizedBox(height: 6.h),
+                  _PostMeta(
+                    post: post,
+                    media: media,
+                    mediaKey: mediaKey,
+                  ),
                 ],
               ),
             ),
@@ -119,34 +129,21 @@ class _PostHeader extends StatelessWidget {
   }
 }
 
-class _PostMeta extends StatefulWidget {
+class _PostMeta extends GetView<HomeController> {
   final PostModel post;
   final MediaModel media;
+  final String mediaKey;
 
-  const _PostMeta({required this.post, required this.media});
-
-  @override
-  State<_PostMeta> createState() => _PostMetaState();
-}
-
-class _PostMetaState extends State<_PostMeta> {
-  bool _isExpanded = false;
-  bool _shouldCollapse = false;
-
-  @override
-  void didUpdateWidget(covariant _PostMeta oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.media.url != widget.media.url) {
-      _isExpanded = false;
-    }
-    int totalLength = widget.media.caption.length + widget.media.hashtag.length;
-    if (totalLength > 65) {
-      _shouldCollapse = true;
-    }
-  }
+  const _PostMeta({
+    required this.post,
+    required this.media,
+    required this.mediaKey,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final captionWithTagline = '${media.caption}\n${media.hashtag}';
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +172,7 @@ class _PostMetaState extends State<_PostMeta> {
                     children: [
                       const TextSpan(text: 'Recommended: '),
                       TextSpan(
-                        text: widget.media.music,
+                        text: media.music,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14.sp,
@@ -201,38 +198,38 @@ class _PostMetaState extends State<_PostMeta> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ReadMoreText(
-                "${widget.media.caption}\n${widget.media.hashtag}",
-                trimMode: TrimMode.Line,
-                trimLines: 2,
-                trimCollapsedText: " See More",
-                trimExpandedText: " See Less",
-                delimiter: "...",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                ),
-                moreStyle: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14.sp,
-                ),
-                lessStyle: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14.sp,
+              Obx(
+                () => ReadMoreText(
+                  captionWithTagline,
+                  trimMode: TrimMode.Line,
+                  trimLines: controller.isCaptionExpanded(mediaKey) ? 100 : 2,
+                  trimCollapsedText: " See More",
+                  trimExpandedText: " See Less",
+                  delimiter: "...",
+                  style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                  moreStyle: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                  ),
+                  lessStyle: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                  ),
+                  
                 ),
               ),
 
               SizedBox(height: 2.h),
 
               Text(
-                "Use my referral code: ${widget.media.referralCode}",
+                "Use my referral code: ${media.referralCode}",
                 style: TextStyle(color: Colors.white, fontSize: 14.sp),
               ),
 
               Text(
-                "Use my referral link: ${widget.media.link}",
+                "Use my referral link: ${media.link}",
                 style: TextStyle(color: Colors.white, fontSize: 14.sp),
               ),
             ],
@@ -241,4 +238,115 @@ class _PostMetaState extends State<_PostMeta> {
       ],
     );
   }
+}
+
+class _ProductSection extends GetView<HomeController> {
+  final MediaModel media;
+  final String mediaKey;
+
+  const _ProductSection({
+    required this.media,
+    required this.mediaKey,
+  });
+
+
+  @override
+  Widget build(BuildContext context) {
+    controller.scheduleProductReveal(mediaKey);
+
+    return Obx(() {
+      final isVisible = controller.isProductVisible(mediaKey);
+
+      return AnimatedSlide(
+        duration: const Duration(milliseconds: 550),
+        curve: Curves.easeOutCubic,
+        offset: isVisible ? Offset.zero : const Offset(0, 0.18),
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 550),
+          curve: Curves.easeOut,
+          opacity: isVisible ? 1 : 0,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: ()async{
+                await controller.openProductLink(media.link.trim());
+              } ,
+              borderRadius: BorderRadius.circular(16.r),
+              child: Ink(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.40),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: Image.asset(
+                        media.url,
+                        width: 62.w,
+                        height: 62.w,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Girodani Gold Lipstick',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 3.h),
+                        Row(
+                          spacing: 8.w,
+                          children: [
+                            Text(
+                              "\$14.99",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal:8.w,vertical: 4.h),
+                              decoration:BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.r),
+                                color: const Color.fromARGB(255, 4, 118, 8)
+                              ) ,
+                              child: Center(
+                                child: Text(
+                                "30% off",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                                            ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                    
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
 }
