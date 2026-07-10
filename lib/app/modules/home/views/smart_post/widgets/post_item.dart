@@ -10,6 +10,7 @@ import '../../../../../data/model/media_model.dart';
 import '../../../../../data/model/post_model.dart';
 import '../../../controllers/home_controller.dart';
 import 'post_background.dart';
+import 'ready_to_share.dart';
 
 class PostItem extends StatelessWidget {
   final String postId;
@@ -52,7 +53,12 @@ class PostItem extends StatelessWidget {
                   const Spacer(),
                   _ProductSection(media: media, mediaKey: mediaKey),
                   SizedBox(height: 6.h),
-                  _PostMeta(post: post, media: media, mediaKey: mediaKey,currentMediaIndex: currentMediaIndex,),
+                  _PostMeta(
+                    post: post,
+                    media: media,
+                    mediaKey: mediaKey,
+                    currentMediaIndex: currentMediaIndex,
+                  ),
                 ],
               ),
             ),
@@ -85,13 +91,19 @@ class _PostHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                post.userName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                spacing: 4.w,
+                children: [
+                  Text(
+                    post.userName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  ReadyToShareButton(),
+                ],
               ),
               const SizedBox(height: 2),
               Text(
@@ -135,7 +147,7 @@ class _PostMeta extends GetView<HomeController> {
     required this.post,
     required this.media,
     required this.mediaKey,
-    required this.currentMediaIndex
+    required this.currentMediaIndex,
   });
 
   @override
@@ -230,20 +242,24 @@ class _PostMeta extends GetView<HomeController> {
                 style: TextStyle(color: Colors.white, fontSize: 14.sp),
               ),
 
-             if(controller.isEditMode.value) GestureDetector(
-              onTap: ()=>controller.editCaption(currentMediaIndex),
-               child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  spacing: 3.w,
-                  children: [
-                    Icon(Icons.edit, color: AppColor.whiteColor, size: 20.sp),
-                    Text(
-                      "Edit Caption",
-                      style: TextStyle(color: AppColor.whiteColor,fontWeight: FontWeight.bold),
-                    ),
-                  ],
+              if (controller.isEditMode.value)
+                GestureDetector(
+                  onTap: () => controller.editCaption(currentMediaIndex),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    spacing: 3.w,
+                    children: [
+                      Icon(Icons.edit, color: AppColor.whiteColor, size: 20.sp),
+                      Text(
+                        "Edit Caption",
+                        style: TextStyle(
+                          color: AppColor.whiteColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-             ),
             ],
           ),
         ),
