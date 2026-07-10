@@ -3,10 +3,7 @@ import 'package:brandie/app/constant/app_images.dart';
 import 'package:brandie/app/constant/theme/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
-import '../data/model/quick_share_model.dart';
 import '../modules/home/controllers/share_dialog_controller.dart';
 
 

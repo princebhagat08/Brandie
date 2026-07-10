@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../data/model/quick_share_model.dart';
-import '../../../global_widget/share_dialog.dart';
 
 class ShareDialogController extends GetxController {
   ShareDialogController({
