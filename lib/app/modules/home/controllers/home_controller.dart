@@ -10,6 +10,7 @@ import '../../../data/model/post_model.dart';
 import '../../../data/model/quick_share_model.dart';
 import '../../../data/model/share_payload.dart';
 import '../../../global_widget/share_dialog.dart';
+import 'share_dialog_controller.dart';
 
 
 
@@ -167,10 +168,35 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     }
   }
 
-Future<void> handleQuickShare(
-    BuildContext context,
-    QuickShareItem item,
-  ) async {
+  Future<void> showShareDialog({
+  required List<ShareDialogStep> steps,
+  String? tag,
+}) async {
+  final dialogTag = tag ?? 'share-dialog-${DateTime.now().microsecondsSinceEpoch}';
+
+  final controller = Get.put(
+    ShareDialogController(steps: steps),
+    tag: dialogTag,
+  );
+
+  Get.dialog(
+    ShareDialog(tag: dialogTag),
+    barrierDismissible: false,
+    barrierColor: Colors.grey.withValues(alpha: 0.9),
+  );
+
+  try {
+    await controller.run();
+  } finally {
+    if (Get.isDialogOpen ?? false) {
+      Get.back();
+    }
+    Get.delete<ShareDialogController>(tag: dialogTag, force: true);
+  }
+}
+
+
+Future<void> handleQuickShare(QuickShareItem item) async {
     final post = currentPostModel;
     if (post == null) return;
 
@@ -179,21 +205,35 @@ Future<void> handleQuickShare(
 
     final payload = SharePayload.from(post.userName, media);
 
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.grey.withOpacity(0.9),
-      builder: (_) => const QuickShareLoaderDialog(),
+    await showShareDialog(
+      steps: [
+        ShareDialogStep(
+          message: 'Generating your sales link..',
+          action: () async {
+            await Future<void>.delayed(const Duration(seconds: 1));
+          },
+        ),
+        ShareDialogStep(
+          message: 'Copying the caption to clipboard..',
+          action: () async {
+            await Future<void>.delayed(const Duration(seconds: 1));
+            await Clipboard.setData(ClipboardData(text: payload.fullText));
+          },
+        ),
+        ShareDialogStep(
+          message: 'Saving the content to your profile',
+          action: () async {
+            await Future<void>.delayed(const Duration(seconds: 1));
+          },
+        ),
+        ShareDialogStep(
+          message: 'Preparing the content for the social media',
+          action: () async {
+            await Future<void>.delayed(const Duration(seconds: 1));
+          },
+        ),
+      ],
     );
-
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-    await Future<void>.delayed(const Duration(milliseconds: 850));
-    await Clipboard.setData(ClipboardData(text: payload.fullText));
-    await Future<void>.delayed(const Duration(milliseconds: 850));
-
-    if (context.mounted) {
-      // Navigator.of(context, rootNavigator: true).pop();
-    }
 
     final opened = await _launchShareTarget(item.target, payload);
     if (!opened) {
@@ -218,7 +258,6 @@ Future<void> handleQuickShare(
 
     switch (target) {
       case QuickShareTarget.instagram:
-        uris.add(Uri.parse('instagram://camera'));
         uris.add(Uri.parse('https://www.instagram.com/'));
         break;
       case QuickShareTarget.whatsapp:

@@ -22,3 +22,13 @@ class QuickShareItem {
     required this.label,
   });
 }
+
+class ShareDialogStep {
+  final String message;
+  final Future<void> Function() action;
+
+  const ShareDialogStep({
+    required this.message,
+    required this.action,
+  });
+}

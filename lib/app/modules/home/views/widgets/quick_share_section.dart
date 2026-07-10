@@ -44,7 +44,9 @@ class QuickShareSection extends GetView<HomeController> {
                   final item = controller.quickShareItems[index];
                   return _socialButton(
                     icon: item.icon,
-                    onTap: () async{await controller.handleQuickShare(context, item);},
+                    onTap: () async {
+                      await controller.handleQuickShare(item);
+                    },
                   );
                 },
               ),
