@@ -7,6 +7,16 @@ class AppImages {
   static const String postImg2 = '$imgBase/img2.jpg';
   static const String postImg3 = '$imgBase/img3.jpg';
   static const String profileImg = '$imgBase/avatar_girl.png';
+
+  //social media
+  static const String insta = '$imgBase/insta.png';
+  static const String bussiness_whatsapp = '$imgBase/bussiness_whatsapp.png';
+  static const String email = '$imgBase/email.png';
+  static const String fb = '$imgBase/fb.png';
+  static const String share_chat = '$imgBase/share_chat.png';
+  static const String telegram = '$imgBase/telegram.png';
+  static const String tiktok = '$imgBase/tiktok.png';
+  static const String whatsapp = '$imgBase/whatsapp.png';
 }
 
 const String iconBase = 'assets/icons';

@@ -10,8 +10,7 @@ class HomeController extends GetxController
   late TabController tabController;
   final PageController pageController = PageController();
   RxInt currentPost = 0.obs;
-
-  RxInt currentMedia = 0.obs;
+  final RxMap<String, int> currentMediaByPost = <String, int>{}.obs;
 
   final posts = <PostModel>[].obs;
 
@@ -22,22 +21,42 @@ class HomeController extends GetxController
     Tab(text: "Share&Win"),
   ];
 
+  final quickShareIcons = const [
+    AppImages.insta,
+    AppImages.whatsapp,
+    AppImages.fb,
+    AppImages.fb,
+    AppImages.bussiness_whatsapp,
+    AppImages.share_chat,
+    AppImages.telegram,
+    AppImages.tiktok,
+  ];
+
+  final navItems = const [
+    AppIcons.share,
+    AppIcons.search,
+    AppIcons.home,
+    AppIcons.chat,
+    AppIcons.profile,
+  ];
+
   void onPostChanged(int index) {
     currentPost.value = index;
-
-    currentMedia.value = 0;
   }
 
-  void onMediaChanged(int index) {
-    currentMedia.value = index;
+  void onMediaChanged({required String postId, required int index}) {
+    currentMediaByPost[postId] = index;
+  }
+
+  int mediaIndexFor(String postId) {
+    return currentMediaByPost[postId] ?? 0;
   }
 
   @override
   void onInit() {
     super.onInit();
     tabController = TabController(length: tabs.length, vsync: this);
-
-    //  posts.addAll(dummyPosts);
+    posts.assignAll(dummyPosts);
   }
 
   @override
@@ -54,39 +73,72 @@ class HomeController extends GetxController
   final dummyPosts = [
     PostModel(
       id: "1",
-
-      userImage: "profile.png",
-
+      userImage: AppImages.profileImg,
       userName: "Emma",
-
-      caption: "This lipstick is amazing...",
-
-      musicName: "Bad Habits",
-
       media: [
-        MediaModel(url: AppImages.postImg1, type: MediaType.image),
-
-        MediaModel(url: AppImages.postImg2, type: MediaType.image),
-
-        MediaModel(url: AppImages.postImg3, type: MediaType.video),
+        MediaModel(
+          url: AppImages.postImg1,
+          type: MediaType.image,
+          caption: "Soft glam look with a satin finish that lasts all day.",
+          musicName: "Bad Habits",
+        ),
+        MediaModel(
+          url: AppImages.postImg2,
+          type: MediaType.image,
+          caption: "Close-up swatch in daylight so the undertone reads true.",
+          musicName: "Golden Hour",
+        ),
+        MediaModel(
+          url: AppImages.postImg3,
+          type: MediaType.video,
+          caption: "Mini tutorial: blend, blot, then top with gloss.",
+          musicName: "Rush Cut",
+        ),
       ],
     ),
-
     PostModel(
       id: "2",
-
-      userImage: "profile2.png",
-
+      userImage: AppImages.profileImg,
       userName: "Sophia",
-
-      caption: "Summer Collection",
-
-      musicName: "Perfect",
-
       media: [
-        MediaModel(url: "assets/4.jpg", type: MediaType.image),
-
-        MediaModel(url: "assets/5.jpg", type: MediaType.image),
+        MediaModel(
+          url: AppImages.postImg2,
+          type: MediaType.image,
+          caption: "Summer collection moodboard with warm neutrals and gloss.",
+          musicName: "Perfect",
+        ),
+        MediaModel(
+          url: AppImages.postImg1,
+          type: MediaType.video,
+          caption: "Behind the scenes from the campaign shoot.",
+          musicName: "Studio Loop",
+        ),
+        MediaModel(
+          url: AppImages.postImg3,
+          type: MediaType.image,
+          caption: "Final hero shot for the carousel cover.",
+          musicName: "Sunset Drive",
+        ),
+      ],
+    ),
+    PostModel(
+      id: "3",
+      userImage: AppImages.profileImg,
+      userName: "Mia",
+      media: [
+        MediaModel(
+          url: AppImages.postImg3,
+          type: MediaType.image,
+          caption:
+              "Berry tones layered with a diffused liner for evening wear.",
+          musicName: "Midnight City",
+        ),
+        MediaModel(
+          url: AppImages.postImg2,
+          type: MediaType.image,
+          caption: "Packaging detail and texture shot from the new launch.",
+          musicName: "Velvet Touch",
+        ),
       ],
     ),
   ];

@@ -1,48 +1,39 @@
+import 'package:brandie/app/constant/app_colors.dart';
+import 'package:brandie/app/constant/app_images.dart';
 import 'package:brandie/app/constant/theme/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
-class QuickShareSection extends StatelessWidget {
+import '../../controllers/home_controller.dart';
+
+class QuickShareSection extends GetView<HomeController>{
   const QuickShareSection({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: 16,
-      right: 16,
-      bottom: 75,
+      left: 16.w,
+      right: 16.w,
+      bottom: 75.h,
       child: SizedBox(
-        height: 40,
+        height: 50.h,
         child: Row(
           children: [
             Text(
               "Quick share to:",
-              style: context.text.bodySmall,
+              style: context.text.bodyMedium?.copyWith(color: AppColor.whiteColor,fontWeight: FontWeight.bold),
             ),
-            const SizedBox(width: 12),
+             SizedBox(width: 12.w),
 
             Expanded(
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: 6,
-                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemCount: controller.quickShareIcons.length,
+                separatorBuilder: (_, __) =>  SizedBox(width: 3.w),
                 itemBuilder: (context, index) {
-                  final items = [
-                    [Icons.camera_alt, Colors.pink],
-                    [Icons.camera_alt, Colors.purple],
-                    [Icons.facebook, Colors.blue],
-                    [Icons.facebook, Colors.blue.shade700],
-                    [Icons.message, Colors.purple],
-                    [Icons.music_note, Colors.black],
-                      [Icons.camera_alt, Colors.purple],
-                    [Icons.facebook, Colors.blue],
-                    [Icons.facebook, Colors.blue.shade700],
-                    [Icons.message, Colors.purple],
-                    [Icons.music_note, Colors.black],
-                  ];
-
                   return _socialButton(
-                    items[index][0] as IconData,
-                    items[index][1] as Color,
+                    controller.quickShareIcons[index]
                   );
                 },
               ),
@@ -53,19 +44,14 @@ class QuickShareSection extends StatelessWidget {
     );
   }
 
-  Widget _socialButton(IconData icon, Color color) {
+  Widget _socialButton(String icon) {
     return CircleAvatar(
-      radius: 18,
-      backgroundColor: Colors.white,
-      child: CircleAvatar(
-        radius: 16,
-        backgroundColor: color,
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 16,
-        ),
-      ),
+      radius: 32.r,
+      backgroundColor: Colors.grey.withAlpha(200),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset(icon),
+      )
     );
   }
 }

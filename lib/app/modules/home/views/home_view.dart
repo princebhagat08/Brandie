@@ -30,7 +30,7 @@ class HomeView extends GetView<HomeController> {
           const QuickShareSection(),
 
           /// Bottom Navigation
-          // const HomeBottomBar(),
+          const HomeBottomBar(),
         ],
       ),
     );
